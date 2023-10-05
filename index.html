@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Chatbot com Perguntas e Respostas e Transcrição em Tempo Real</title>
+</head>
+<body>
+  <h1>Chatbot</h1>
+  <div id="chat"></div>
+  <button id="microphoneButton">Pressione e Fale</button>
+  <div id="transcription"></div>
+
+  <script>
+    let recognition;
+    let userSpeech = '';
+
+    // Função para adicionar mensagens ao chat
+    function addMessage(text, isUser = false) {
+      const chatDiv = document.getElementById('chat');
+      const messageDiv = document.createElement('div');
+      messageDiv.classList.add(isUser ? 'user-message' : 'bot-message');
+      messageDiv.textContent = text;
+      chatDiv.appendChild(messageDiv);
+
+      // Rolagem automática para a última mensagem
+      chatDiv.scrollTop = chatDiv.scrollHeight;
+    }
+
+    // Função para atualizar a transcrição em tempo real
+    function updateTranscription(text) {
+      const transcriptionDiv = document.getElementById('transcription');
+      transcriptionDiv.textContent = text;
+    }
+
+    // Função para iniciar o reconhecimento de fala
+    function startListening() {
+      recognition = new webkitSpeechRecognition() || new SpeechRecognition();
+      recognition.lang = 'pt-BR';
+
+      recognition.onstart = () => {
+        userSpeech = ''; // Limpar o discurso do usuário
+        updateTranscription('');
+      };
+
+      recognition.onresult = (event) => {
+        userSpeech = event.results[0][0].transcript;
+        updateTranscription(`Você está dizendo: ${userSpeech}`);
+      };
+
+      recognition.onend = () => {
+        if (userSpeech.trim() !== '') {
+          addMessage(`Você disse: ${userSpeech}`, true);
+          handleUserQuestion(userSpeech);
+          userSpeech = ''; // Limpar o discurso do usuário
+        }
+      };
+
+      // Iniciar o reconhecimento de fala
+      recognition.start();
+    }
+
+    // Função para lidar com a pergunta do usuário
+    function handleUserQuestion(question) {
+      switch (question.toLowerCase()) {
+        case 'qual é a capital do Brasil?':
+          addMessage('A capital do Brasil é Brasília.');
+          break;
+        case 'quem é o presidente dos Estados Unidos?':
+          addMessage('O presidente dos Estados Unidos é Joe Biden.');
+          break;
+        case 'qual é o maior planeta do sistema solar?':
+          addMessage('O maior planeta do sistema solar é Júpiter.');
+          break;
+        case 'quem escreveu a peça "Romeu e Julieta"?':
+          addMessage('A peça "Romeu e Julieta" foi escrita por William Shakespeare.');
+          break;
+        case 'qual é o símbolo químico para o oxigênio?':
+          addMessage('O símbolo químico para o oxigênio é O.');
+          break;
+        case 'qual é a montanha mais alta do mundo?':
+          addMessage('A montanha mais alta do mundo é o Monte Everest.');
+          break;
+        case 'quem pintou a Mona Lisa?':
+          addMessage('A Mona Lisa foi pintada por Leonardo da Vinci.');
+          break;
+        case 'qual é o maior oceano da Terra?':
+          addMessage('O maior oceano da Terra é o Oceano Pacífico.');
+          break;
+        case 'quantos planetas existem no sistema solar?':
+          addMessage('Existem oito planetas no sistema solar.');
+          break;
+        case 'quem foi o primeiro ser humano a pisar na Lua?':
+          addMessage('O primeiro ser humano a pisar na Lua foi Neil Armstrong.');
+          break;
+        default:
+          addMessage('Desculpe, não conheço a resposta para essa pergunta.');
+          break;
+      }
+    }
+
+    // Lidar com pressionar o botão do microfone
+    document.getElementById('microphoneButton').addEventListener('mousedown', () => {
+      startListening();
+    });
+
+    // Lidar com soltar o botão do microfone
+    document.getElementById('microphoneButton').addEventListener('mouseup', () => {
+      stopListening();
+    });
+
+    // Lidar com sair do botão do microfone
+    document.getElementById('microphoneButton').addEventListener('mouseout', () => {
+      stopListening();
+    });
+  </script>
+</body>
+</html>
